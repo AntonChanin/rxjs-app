@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { interval, fromEvent } from 'rxjs';
-import { filter, map, take, scan } from 'rxjs/operators';
+import { interval, range, timer } from 'rxjs';
 
-import { people } from './problem';
-import './creation';
+import { getIntervalRxJS, people } from './problem';
+import { onReplaySubject as handleSubject } from './subjects';
+import {
+    clearCanvasMouseMoveStream,
+    getCanvasMouseMoveStream,
+} from './creation';
+import './operators';
 
 import './App.scss';
+
 
 
 function App() {
@@ -34,48 +39,33 @@ function App() {
 
     const rxjsHandler = () => {
         setRxjsIsDisabled(true);
-        interval(1000).pipe(
-            take(people.length),
-            filter(v => people[v].age >= 18),
-            map(v => people[v].name),
-            scan((acc: string[], v: string) => acc.concat(v), [])
-        )
-        .subscribe({
-            next(res) { setDrinkers(res); },
-            complete() { setRxjsIsDisabled(false); },
-        });
+        getIntervalRxJS(
+            (res: string[]) => setDrinkers(res),
+            null,
+            () => setRxjsIsDisabled(false),
+        );
     };
 
     const handleDrow: React.MouseEventHandler<HTMLCanvasElement> =
         (e) => {
-            fromEvent<MouseEvent>(e.target, 'mousemove')
-                .pipe(
-                    map((e) => ({
-                        x: e.offsetX,
-                        y: e.offsetY,
-                        ctx: (e.target as HTMLCanvasElement).getContext('2d'),
-                    })),
-                )
-                .subscribe(
-                    pos => {
-                        pos.ctx?.fillRect(pos.x, pos.y, 2, 2);
-                       
-                    }
-                );
+            getCanvasMouseMoveStream(e);
             setCanvas(e.target as HTMLCanvasElement);
         };
 
     const handleClear: React.MouseEventHandler<HTMLButtonElement> =
-        (e) =>
-            fromEvent<MouseEvent>(e.target, 'click')
-                .subscribe({
-                    next() {
-                        canvas?.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);
-                    },
-                });
+        (e) => clearCanvasMouseMoveStream(e, canvas);
+    
+    const sub = interval(500).subscribe(v => console.log(v));
+    setTimeout(() => {
+        sub.unsubscribe();
+    }, 4000);
+
+    timer(2500).subscribe(v => console.log(v));
+
+    range(42, 10).subscribe(v => console.log(v));
 
     return (
-        <div className="body">
+        <div className="body" onClick={handleSubject}>
             <div className="container">
                 <div className="problem">
                     <button

@@ -1,5 +1,5 @@
-import { of, from, Observable } from 'rxjs';
-import { scan } from 'rxjs/operators';
+import { of, from, Observable, fromEvent } from 'rxjs';
+import { map, scan } from 'rxjs/operators';
 
 const stream$ = of(1, 2, 3, 4);
 
@@ -28,3 +28,25 @@ stream_observable$.subscribe({
    error: e => console.error(e),
    complete: () => console.log('Complete'),
 });
+
+export const getCanvasMouseMoveStream = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) =>
+    e.target &&
+        fromEvent<MouseEvent>(e.target, 'mousemove')
+            .pipe(
+                map((e) => ({
+                    x: e.offsetX,
+                    y: e.offsetY,
+                    ctx: (e.target as HTMLCanvasElement).getContext('2d'),
+                })),
+            )
+            .subscribe(
+                pos => {
+                    pos.ctx?.fillRect(pos.x, pos.y, 2, 2);
+                    
+                }
+            );
+
+export const clearCanvasMouseMoveStream = 
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, canvas: HTMLCanvasElement | null) =>
+        fromEvent<MouseEvent>(e.target, 'click')
+            .subscribe(() => canvas?.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height));
