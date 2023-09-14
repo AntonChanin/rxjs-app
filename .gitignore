@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 
-/node_modules/*
+node_modules/.cache
 
 # Editor directories and files
 .vscode/*
