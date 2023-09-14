@@ -1,0 +1,10 @@
+@import './variability.scss';
+
+.btn {
+    border: $zero;
+    outline: $zero;
+    color: $white;
+    margin: calc(1 * $pt);
+    padding: calc(2 * $pt);
+    background-color: $bgColor;
+}
