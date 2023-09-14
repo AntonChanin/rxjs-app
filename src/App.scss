@@ -1,5 +1,9 @@
 @import './variability.scss';
 
+.body {
+    font-family: $fonts;
+}
+
 .btn {
     border: $zero;
     outline: $zero;
@@ -7,4 +11,7 @@
     margin: calc(1 * $pt);
     padding: calc(2 * $pt);
     background-color: $bgColor;
+    &:disabled {
+        opacity: 0.5;
+    }
 }
